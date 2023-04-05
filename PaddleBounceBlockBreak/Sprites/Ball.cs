@@ -85,11 +85,12 @@ namespace PaddleBounceBlockBreak.Sprites
                     {
                         Velocity.X = -Velocity.X;
                     }
-                    if (Position.Y + _texture.Height >= Game1.ScreenHeight)
+                    if (Position.Y <= 0)
                     {
                         Velocity.Y = -Velocity.Y;
+
                     }
-                    if (Position.Y <= 0)
+                    if (Position.Y + _texture.Height >= Game1.ScreenHeight)
                     {
                         // GAME OVER
                         Restart();
