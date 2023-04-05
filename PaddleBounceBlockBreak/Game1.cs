@@ -1,7 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using PaddleBounceBlockBreak.Models;
+using PaddleBounceBlockBreak.Sprites;
 using System;
+using System.Collections.Generic;
 
 namespace PaddleBounceBlockBreak
 {
@@ -14,6 +17,9 @@ namespace PaddleBounceBlockBreak
         public static int ScreenWidth;
         public static int ScreenHeight;
         public static Random Random;
+
+        private Score _score;
+        private List<Sprite> _sprites;
 
         public Game1()
         {
@@ -35,15 +41,41 @@ namespace PaddleBounceBlockBreak
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            var batTexture = Content.Load<Texture2D>("bat");
+            var ballTexture = Content.Load<Texture2D>("ball");
+
+            _score = new Score(Content.Load<SpriteFont>("ScoreFont"));
+
+            _sprites = new List<Sprite>()
+            {
+                // TODO: Background goes here
+                new Bat(batTexture)
+                {
+                    Position = new Vector2((ScreenWidth/2) - (batTexture.Width/2), 20),
+                    Input = new Input()
+                    {
+                        Left = Keys.Left,
+                        Right = Keys.Right
+                    }
+                },
+                new Ball(ballTexture)
+                {
+                    Position = new Vector2((ScreenWidth/2) - (ballTexture.Width/2),  (ScreenHeight/2) - (ballTexture.Height/2)),
+                }
+            };
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 Exit();
+            }
 
-            // TODO: Add your update logic here
+            foreach (var sprite in _sprites)
+            {
+                sprite.Update(gameTime, _sprites);
+            }
 
             base.Update(gameTime);
         }
@@ -52,7 +84,16 @@ namespace PaddleBounceBlockBreak
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            _spriteBatch.Begin();
+
+            foreach(var sprite in _sprites)
+            {
+                sprite.Draw(_spriteBatch);
+            }
+
+            _score.Draw(_spriteBatch);
+
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }
