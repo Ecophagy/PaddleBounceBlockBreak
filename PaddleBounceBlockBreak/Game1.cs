@@ -13,7 +13,7 @@ namespace PaddleBounceBlockBreak
         // non-static?
         public static int ScreenWidth;
         public static int ScreenHeight;
-        public static Random random; 
+        public static Random Random;
 
         public Game1()
         {
@@ -26,7 +26,7 @@ namespace PaddleBounceBlockBreak
         {
             ScreenWidth = _graphics.PreferredBackBufferWidth;
             ScreenHeight = _graphics.PreferredBackBufferHeight;
-            random = new Random();
+            Random = new Random();
 
             base.Initialize();
         }
