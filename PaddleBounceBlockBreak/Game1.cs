@@ -51,7 +51,7 @@ namespace PaddleBounceBlockBreak
                 // TODO: Background goes here
                 new Bat(batTexture)
                 {
-                    Position = new Vector2((ScreenWidth/2) - (batTexture.Width/2), 20),
+                    Position = new Vector2((ScreenWidth/2) - (batTexture.Width/2), ScreenHeight - 40),
                     Input = new Input()
                     {
                         Left = Keys.Left,
