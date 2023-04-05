@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace PaddleBounceBlockBreak
 {
@@ -8,6 +9,11 @@ namespace PaddleBounceBlockBreak
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+
+        // non-static?
+        public static int ScreenWidth;
+        public static int ScreenHeight;
+        public static Random random; 
 
         public Game1()
         {
@@ -18,7 +24,9 @@ namespace PaddleBounceBlockBreak
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            ScreenWidth = _graphics.PreferredBackBufferWidth;
+            ScreenHeight = _graphics.PreferredBackBufferHeight;
+            random = new Random();
 
             base.Initialize();
         }
