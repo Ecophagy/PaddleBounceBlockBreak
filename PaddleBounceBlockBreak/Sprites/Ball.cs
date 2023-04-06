@@ -75,7 +75,7 @@ namespace PaddleBounceBlockBreak.Sprites
                     {
                         this.Velocity.Y = -this.Velocity.Y;
                     }
-                    if (this.Velocity.Y > 0 && this.IsTouchingBottom(sprite))
+                    if (this.Velocity.Y < 0 && this.IsTouchingBottom(sprite))
                     {
                         this.Velocity.Y = -this.Velocity.Y;
                     }
