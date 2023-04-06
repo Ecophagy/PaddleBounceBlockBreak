@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace PaddleBounceBlockBreak.Sprites
 {
-    public class Bat : Sprite
+    public class Paddle : Sprite
     {
-        public Bat(Texture2D texture) : base(texture)
+        public Paddle(Texture2D texture) : base(texture)
         {
             Speed = 5f;
         }

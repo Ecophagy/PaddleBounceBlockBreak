@@ -41,7 +41,7 @@ namespace PaddleBounceBlockBreak
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            var batTexture = Content.Load<Texture2D>("bat");
+            var paddleTexture = Content.Load<Texture2D>("paddle");
             var ballTexture = Content.Load<Texture2D>("ball");
 
             _score = new Score(Content.Load<SpriteFont>("ScoreFont"));
@@ -49,9 +49,9 @@ namespace PaddleBounceBlockBreak
             _sprites = new List<Sprite>()
             {
                 // TODO: Background goes here
-                new Bat(batTexture)
+                new Paddle(paddleTexture)
                 {
-                    Position = new Vector2((ScreenWidth/2) - (batTexture.Width/2), ScreenHeight - 40),
+                    Position = new Vector2((ScreenWidth/2) - (paddleTexture.Width/2), ScreenHeight - 40),
                     Input = new Input()
                     {
                         Left = Keys.Left,
