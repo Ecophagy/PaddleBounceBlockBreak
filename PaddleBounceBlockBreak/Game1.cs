@@ -82,7 +82,7 @@ namespace PaddleBounceBlockBreak
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.LightSlateGray);
 
             _spriteBatch.Begin();
 
