@@ -57,13 +57,13 @@ namespace PaddleBounceBlockBreak.Sprites
 
                 foreach (var sprite in sprites)
                 {
-                    if(sprite == this)
+                    if (sprite == this)
                     {
                         continue;
                     }
 
                     // Update Velocity on collisions with other sprite
-                    if(this.Velocity.X > 0 && this.IsTouchingLeft(sprite))
+                    if (this.Velocity.X > 0 && this.IsTouchingLeft(sprite))
                     {
                         this.Velocity.X = -this.Velocity.X;
                     }
@@ -79,25 +79,25 @@ namespace PaddleBounceBlockBreak.Sprites
                     {
                         this.Velocity.Y = -this.Velocity.Y;
                     }
-
-                    // Update Velocity from collision with walls
-                    if (Position.X <= 0 || Position.X + _texture.Width >= Game1.ScreenWidth)
-                    {
-                        Velocity.X = -Velocity.X;
-                    }
-                    if (Position.Y <= 0)
-                    {
-                        Velocity.Y = -Velocity.Y;
-
-                    }
-                    if (Position.Y + _texture.Height >= Game1.ScreenHeight)
-                    {
-                        // GAME OVER
-                        Restart();
-                    }
-
-                    Position += Velocity * Speed;
                 }
+
+                // Update Velocity from collision with walls
+                if (Position.X <= 0 || Position.X + _texture.Width >= Game1.ScreenWidth)
+                {
+                    Velocity.X = -Velocity.X;
+                }
+                if (Position.Y <= 0)
+                {
+                    Velocity.Y = -Velocity.Y;
+
+                }
+                if (Position.Y + _texture.Height >= Game1.ScreenHeight)
+                {
+                    // GAME OVER
+                    Restart();
+                }
+
+                Position += Velocity * Speed;
             }
         }
 
