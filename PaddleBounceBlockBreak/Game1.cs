@@ -94,11 +94,23 @@ namespace PaddleBounceBlockBreak
             {
                 block.Update(gameTime);
             }
-            // TODO: Update score based on hit blocks
+
+            UpdateScore();
 
             PostUpdate();
 
             base.Update(gameTime);
+        }
+
+        private void UpdateScore()
+        {
+            foreach (var block in _blocks)
+            {
+                if (block.IsRemoved)
+                {
+                    _score.CurrentScore += block._pointValue;
+                }
+            }
         }
 
         private void PostUpdate()
