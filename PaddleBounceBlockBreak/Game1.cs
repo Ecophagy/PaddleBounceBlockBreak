@@ -23,6 +23,7 @@ namespace PaddleBounceBlockBreak
         private Ball _ball;
         private Paddle _paddle;
         private List<Block> _blocks;
+        private bool _gameOver = false;
 
         public Game1()
         {
@@ -88,17 +89,24 @@ namespace PaddleBounceBlockBreak
                 Exit();
             }
 
-            _paddle.Update(gameTime);
-            _ball.Update(gameTime, _blocks, _paddle);
-            foreach (var block in _blocks)
+            if (!_gameOver)
             {
-                block.Update(gameTime);
+                _paddle.Update(gameTime);
+                _ball.Update(gameTime, _blocks, _paddle);
+                foreach (var block in _blocks)
+                {
+                    block.Update(gameTime);
+                }
+
+                UpdateScore();
+
+                PostUpdate();
+
+                if (!_blocks.Any())
+                {
+                    OnLevelComplete();
+                }
             }
-
-            UpdateScore();
-
-            PostUpdate();
-
             base.Update(gameTime);
         }
 
@@ -123,6 +131,11 @@ namespace PaddleBounceBlockBreak
                     i--;
                 }
             }
+        }
+
+        private void OnLevelComplete()
+        {
+            _gameOver = true;
         }
 
         protected override void Draw(GameTime gameTime)
