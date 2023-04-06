@@ -48,23 +48,9 @@ namespace PaddleBounceBlockBreak
 
             _score = new Score(Content.Load<SpriteFont>("ScoreFont"));
 
-            _sprites = new List<Sprite>()
-            {
-                // TODO: Background goes here
-                new Paddle(paddleTexture)
-                {
-                    Position = new Vector2((ScreenWidth/2) - (paddleTexture.Width/2), ScreenHeight - 40),
-                    Input = new Input()
-                    {
-                        Left = Keys.Left,
-                        Right = Keys.Right
-                    }
-                },
-                new Ball(ballTexture)
-                {
-                    Position = new Vector2((ScreenWidth/2) - (ballTexture.Width/2),  (ScreenHeight/2) - (ballTexture.Height/2)),
-                },
-            };
+            _sprites = new List<Sprite>();
+            // TODO: Background goes here
+
             // Add 10 block in a random pattern
             foreach (var _ in Enumerable.Range(0, 10))
             {
@@ -79,6 +65,21 @@ namespace PaddleBounceBlockBreak
 
                 _sprites.Add(block);
             }
+
+            _sprites.Add(new Paddle(paddleTexture)
+            {
+                Position = new Vector2((ScreenWidth / 2) - (paddleTexture.Width / 2), ScreenHeight - 40),
+                Input = new Input()
+                {
+                    Left = Keys.Left,
+                    Right = Keys.Right
+                }
+            });
+            _sprites.Add(new Ball(ballTexture)
+            {
+                Position = new Vector2((ScreenWidth / 2) - (ballTexture.Width / 2), (ScreenHeight / 2) - (ballTexture.Height / 2)),
+            });
+
         }
 
         protected override void Update(GameTime gameTime)
