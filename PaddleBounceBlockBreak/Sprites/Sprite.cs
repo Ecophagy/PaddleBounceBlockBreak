@@ -13,6 +13,7 @@ namespace PaddleBounceBlockBreak.Sprites
         public Vector2 Velocity;
         public float Speed;
         public Input Input;
+        public bool IsRemoved = false;
 
         public Rectangle Rectangle
         {

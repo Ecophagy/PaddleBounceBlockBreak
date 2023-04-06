@@ -43,6 +43,7 @@ namespace PaddleBounceBlockBreak
 
             var paddleTexture = Content.Load<Texture2D>("paddle");
             var ballTexture = Content.Load<Texture2D>("ball");
+            var blockTexture = Content.Load<Texture2D>("block");
 
             _score = new Score(Content.Load<SpriteFont>("ScoreFont"));
 
@@ -61,6 +62,10 @@ namespace PaddleBounceBlockBreak
                 new Ball(ballTexture)
                 {
                     Position = new Vector2((ScreenWidth/2) - (ballTexture.Width/2),  (ScreenHeight/2) - (ballTexture.Height/2)),
+                },
+                new Block(blockTexture, 10)
+                {
+                    Position = new Vector2(ScreenWidth/3, ScreenHeight/3)
                 }
             };
         }
@@ -77,7 +82,21 @@ namespace PaddleBounceBlockBreak
                 sprite.Update(gameTime, _sprites);
             }
 
+            PostUpdate();
+
             base.Update(gameTime);
+        }
+
+        private void PostUpdate()
+        {
+            for (int i = 0; i < _sprites.Count; i++)
+            {
+                if (_sprites[i].IsRemoved)
+                {
+                    _sprites.RemoveAt(i);
+                    i--;
+                }
+            }
         }
 
         protected override void Draw(GameTime gameTime)
