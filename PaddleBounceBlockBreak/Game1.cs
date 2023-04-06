@@ -5,6 +5,7 @@ using PaddleBounceBlockBreak.Models;
 using PaddleBounceBlockBreak.Sprites;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PaddleBounceBlockBreak
 {
@@ -63,11 +64,21 @@ namespace PaddleBounceBlockBreak
                 {
                     Position = new Vector2((ScreenWidth/2) - (ballTexture.Width/2),  (ScreenHeight/2) - (ballTexture.Height/2)),
                 },
-                new Block(blockTexture, 10)
-                {
-                    Position = new Vector2(ScreenWidth/3, ScreenHeight/3)
-                }
             };
+            // Add 10 block in a random pattern
+            foreach (var _ in Enumerable.Range(0, 10))
+            {
+                var block = new Block(blockTexture, 10);
+
+                // Randomise block position
+                var blockX = Random.Next(0, ScreenWidth - block.Rectangle.Width);
+                var ylimit = (ScreenHeight/2) - block.Rectangle.Height; // Limit Y to top half of screen
+                var blockY = Random.Next(0, ylimit);
+
+                block.Position = new Vector2(blockX, blockY);
+
+                _sprites.Add(block);
+            }
         }
 
         protected override void Update(GameTime gameTime)
