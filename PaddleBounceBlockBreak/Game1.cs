@@ -20,7 +20,9 @@ namespace PaddleBounceBlockBreak
         public static Random Random;
 
         private Score _score;
-        private List<Sprite> _sprites;
+        private Ball _ball;
+        private Paddle _paddle;
+        private List<Block> _blocks;
 
         public Game1()
         {
@@ -48,23 +50,21 @@ namespace PaddleBounceBlockBreak
 
             _score = new Score(Content.Load<SpriteFont>("ScoreFont"));
 
-            _sprites = new List<Sprite>()
+            _paddle = new Paddle(paddleTexture)
             {
-                // TODO: Background goes here
-                new Paddle(paddleTexture)
+                Position = new Vector2((ScreenWidth / 2) - (paddleTexture.Width / 2), ScreenHeight - 40),
+                Input = new Input()
                 {
-                    Position = new Vector2((ScreenWidth/2) - (paddleTexture.Width/2), ScreenHeight - 40),
-                    Input = new Input()
-                    {
-                        Left = Keys.Left,
-                        Right = Keys.Right
-                    }
-                },
-                new Ball(ballTexture)
-                {
-                    Position = new Vector2((ScreenWidth/2) - (ballTexture.Width/2),  (ScreenHeight/2) - (ballTexture.Height/2)),
-                },
+                    Left = Keys.Left,
+                    Right = Keys.Right
+                }
             };
+            _ball = new Ball(ballTexture)
+            {
+                Position = new Vector2((ScreenWidth / 2) - (ballTexture.Width / 2), (ScreenHeight / 2) - (ballTexture.Height / 2))
+            };
+
+            _blocks = new List<Block>();
             // Add 10 block in a random pattern
             foreach (var _ in Enumerable.Range(0, 10))
             {
@@ -77,7 +77,7 @@ namespace PaddleBounceBlockBreak
 
                 block.Position = new Vector2(blockX, blockY);
 
-                _sprites.Add(block);
+                _blocks.Add(block);
             }
         }
 
@@ -88,10 +88,13 @@ namespace PaddleBounceBlockBreak
                 Exit();
             }
 
-            foreach (var sprite in _sprites)
+            _paddle.Update(gameTime);
+            _ball.Update(gameTime, _blocks, _paddle);
+            foreach (var block in _blocks)
             {
-                sprite.Update(gameTime, _sprites);
+                block.Update(gameTime);
             }
+            // TODO: Update score based on hit blocks
 
             PostUpdate();
 
@@ -100,11 +103,11 @@ namespace PaddleBounceBlockBreak
 
         private void PostUpdate()
         {
-            for (int i = 0; i < _sprites.Count; i++)
+            for (int i = 0; i < _blocks.Count; i++)
             {
-                if (_sprites[i].IsRemoved)
+                if (_blocks[i].IsRemoved)
                 {
-                    _sprites.RemoveAt(i);
+                    _blocks.RemoveAt(i);
                     i--;
                 }
             }
@@ -116,9 +119,12 @@ namespace PaddleBounceBlockBreak
 
             _spriteBatch.Begin();
 
-            foreach(var sprite in _sprites)
+            _paddle.Draw(_spriteBatch);
+            _ball.Draw(_spriteBatch);
+
+            foreach(var block in _blocks)
             {
-                sprite.Draw(_spriteBatch);
+                block.Draw(_spriteBatch);
             }
 
             _score.Draw(_spriteBatch);

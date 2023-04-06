@@ -24,7 +24,7 @@ namespace PaddleBounceBlockBreak.Sprites
             Speed = 3f;
         }
 
-        public override void Update(GameTime gameTime, List<Sprite> sprites)
+        public void Update(GameTime gameTime, List<Block> blocks, Sprite paddle)
         {
             // Set initial values
             if (_startPosition == null)
@@ -55,29 +55,14 @@ namespace PaddleBounceBlockBreak.Sprites
                     _timer = 0;
                 }
 
-                foreach (var sprite in sprites)
-                {
-                    if (sprite == this)
-                    {
-                        continue;
-                    }
+                _ = HandleSpriteCollision(paddle);
 
-                    // Update Velocity on collisions with other sprite
-                    if (this.Velocity.X > 0 && this.IsTouchingLeft(sprite))
+                foreach (var block in blocks)
+                {
+                    if (HandleSpriteCollision(block))
                     {
-                        this.Velocity.X = -this.Velocity.X;
-                    }
-                    if (this.Velocity.X < 0 && this.IsTouchingRight(sprite))
-                    {
-                        this.Velocity.X = -this.Velocity.X;
-                    }
-                    if (this.Velocity.Y > 0 && this.IsTouchingTop(sprite))
-                    {
-                        this.Velocity.Y = -this.Velocity.Y;
-                    }
-                    if (this.Velocity.Y < 0 && this.IsTouchingBottom(sprite))
-                    {
-                        this.Velocity.Y = -this.Velocity.Y;
+                        // We hit a block! Tell it about it
+                        block.BlockHit();
                     }
                 }
 
@@ -98,6 +83,41 @@ namespace PaddleBounceBlockBreak.Sprites
                 }
 
                 Position += Velocity * Speed;
+            }
+        }
+
+        // Return if a collision occurred with parameter sprite
+        private bool HandleSpriteCollision(Sprite sprite)
+        {
+            if (sprite == this)
+            {
+                return false;
+            }
+
+            // Update Velocity on collisions with other sprite
+            if (this.Velocity.X > 0 && this.IsTouchingLeft(sprite))
+            {
+                this.Velocity.X = -this.Velocity.X;
+                return true;
+            }
+            if (this.Velocity.X < 0 && this.IsTouchingRight(sprite))
+            {
+                this.Velocity.X = -this.Velocity.X;
+                return true;
+            }
+            if (this.Velocity.Y > 0 && this.IsTouchingTop(sprite))
+            {
+                this.Velocity.Y = -this.Velocity.Y;
+                return true;
+            }
+            if (this.Velocity.Y < 0 && this.IsTouchingBottom(sprite))
+            {
+                this.Velocity.Y = -this.Velocity.Y;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

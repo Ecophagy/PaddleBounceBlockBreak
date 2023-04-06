@@ -13,7 +13,7 @@ namespace PaddleBounceBlockBreak.Sprites
             Speed = 5f;
         }
 
-        public override void Update(GameTime gameTime, List<Sprite> sprites)
+        public override void Update(GameTime gameTime)
         {
             if(Input == null)
             {

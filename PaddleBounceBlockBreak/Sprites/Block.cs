@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 namespace PaddleBounceBlockBreak.Sprites
 {
@@ -17,25 +16,14 @@ namespace PaddleBounceBlockBreak.Sprites
             Velocity = new Vector2(0, 0);
         }
 
-        public override void Update(GameTime gameTime, List<Sprite> sprites)
+        public override void Update(GameTime gameTime)
         {
-            foreach (var sprite in sprites)
-            {
-                if (sprite == this)
-                {
-                    continue;
-                }
+            // Do nothing, for now
+        }
 
-                // TODO: Check only for ball sprite?
-                if (this.IsTouchingTop(sprite) || 
-                    this.IsTouchingRight(sprite) ||
-                    this.IsTouchingBottom(sprite) || 
-                    this.IsTouchingLeft(sprite))
-                {
-                    // Something (the ball) touched the block, so break it
-                    this.IsRemoved = true;
-                }
-            }
+        public void BlockHit()
+        {
+            this.IsRemoved = true;
         }
 
     }
