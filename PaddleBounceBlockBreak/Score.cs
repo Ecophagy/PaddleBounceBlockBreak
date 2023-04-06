@@ -17,7 +17,7 @@ namespace PaddleBounceBlockBreak
         public void Draw(SpriteBatch spriteBatch)
         {
             // TODO: Change hardcoded position to handle resizing
-            spriteBatch.DrawString(_font, CurrentScore.ToString(), new Vector2(320, 70), Color.White);
+            spriteBatch.DrawString(_font, CurrentScore.ToString(), new Vector2(10, 0), Color.White);
         }
     }
 }
