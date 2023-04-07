@@ -17,6 +17,7 @@ namespace PaddleBounceBlockBreak
 
         private Level _level;
         private Score _score;
+        private int _totalScore;
 
 
         public Game1()
@@ -48,6 +49,7 @@ namespace PaddleBounceBlockBreak
         {
             if (_level != null)
             {
+                _totalScore += _level.LevelScore;
                 _level.Dispose();
             }
 
@@ -62,15 +64,8 @@ namespace PaddleBounceBlockBreak
             }
 
             _level.Update(gameTime);
-            UpdateScore();
 
             base.Update(gameTime);
-        }
-
-        private void UpdateScore()
-        {
-            // FIXME: This is called every frame!
-            _score.CurrentScore += _level.LevelScore;
         }
 
 
@@ -82,7 +77,7 @@ namespace PaddleBounceBlockBreak
 
             _level.Draw(gameTime, _spriteBatch);
 
-            _score.Draw(_spriteBatch);
+            _score.Draw(_spriteBatch, _totalScore + _level.LevelScore);
 
             _spriteBatch.End();
 
