@@ -65,6 +65,11 @@ namespace PaddleBounceBlockBreak
 
             _level.Update(gameTime);
 
+            if (_level.LevelComplete)
+            {
+                LoadNextLevel();
+            }
+
             base.Update(gameTime);
         }
 

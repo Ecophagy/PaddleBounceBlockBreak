@@ -19,8 +19,8 @@ namespace PaddleBounceBlockBreak
 
         // Level State
         private Random _random = new Random();
-        private bool _levelComplete = false;
-        public int LevelScore = 0;
+        public bool LevelComplete { get; private set; } = false;
+        public int LevelScore { get; private set; } = 0;
 
         // Level Content
         private ContentManager _content;
@@ -71,7 +71,7 @@ namespace PaddleBounceBlockBreak
 
         public void Update(GameTime gameTime)
         {
-            if (!_levelComplete)
+            if (!LevelComplete)
             {
                 _paddle.Update(gameTime);
                 _ball.Update(gameTime, _blocks, _paddle);
@@ -118,7 +118,7 @@ namespace PaddleBounceBlockBreak
 
         private void OnLevelComplete()
         {
-            _levelComplete = true;
+            LevelComplete = true;
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
