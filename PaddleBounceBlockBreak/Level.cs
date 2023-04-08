@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using PaddleBounceBlockBreak.Constants;
 using PaddleBounceBlockBreak.Models;
 using PaddleBounceBlockBreak.Sprites;
 using System;
@@ -20,7 +21,7 @@ namespace PaddleBounceBlockBreak
 
         // Level State
         private Random _random = new Random();
-        public bool LevelComplete { get; private set; } = false;
+        public LevelState LevelState { get; private set; }
         public int LevelScore { get; private set; } = 0;
 
         // Level Content
@@ -45,6 +46,8 @@ namespace PaddleBounceBlockBreak
             {
                 Position = new Vector2((Game1.ScreenWidth / 2) - (ballTexture.Width / 2), (Game1.ScreenHeight / 2) - (ballTexture.Height / 2))
             };
+
+            LevelState = LevelState.LEVEL_ACTIVE;
 
             LoadBlocks();
 
@@ -72,7 +75,7 @@ namespace PaddleBounceBlockBreak
 
         public void Update(GameTime gameTime)
         {
-            if (!LevelComplete)
+            if (LevelState == LevelState.LEVEL_ACTIVE)
             {
                 _paddle.Update(gameTime);
                 _ball.Update(gameTime);
@@ -91,7 +94,8 @@ namespace PaddleBounceBlockBreak
                 var gameOver = _ball.HandleWallCollision(Game1.ScreenWidth, Game1.ScreenHeight);
                 if (gameOver)
                 {
-                    _ball.Restart();
+                    //_ball.Restart();
+                    OnLevelFail();
                 }
 
                 foreach (var block in _blocks)
@@ -124,7 +128,12 @@ namespace PaddleBounceBlockBreak
 
         private void OnLevelComplete()
         {
-            LevelComplete = true;
+            LevelState = LevelState.LEVEL_COMPLETE;
+        }
+
+        private void OnLevelFail()
+        {
+            LevelState = LevelState.LEVEL_FAIL;
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)

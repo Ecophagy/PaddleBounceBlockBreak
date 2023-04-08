@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using PaddleBounceBlockBreak.Constants;
+using PaddleBounceBlockBreak.HUD;
 using System;
 
 namespace PaddleBounceBlockBreak
@@ -18,7 +20,10 @@ namespace PaddleBounceBlockBreak
         private Level _level;
         private Score _score;
         private int _totalScore;
+        private GameState _gameState;
 
+        private HudText _gameOverOverlay;
+        
 
         public Game1()
         {
@@ -33,6 +38,8 @@ namespace PaddleBounceBlockBreak
             ScreenHeight = _graphics.PreferredBackBufferHeight;
             Random = new Random();
 
+            _gameState = GameState.GAME_ACTIVE;
+
             base.Initialize();
         }
 
@@ -41,6 +48,7 @@ namespace PaddleBounceBlockBreak
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _score = new Score(Content.Load<SpriteFont>("ScoreFont"));
+            _gameOverOverlay = new HudText(Content.Load<SpriteFont>("ScoreFont"), "Game Over!", new Vector2(ScreenWidth/2, ScreenHeight/2));
 
             LoadNextLevel();
         }
@@ -65,7 +73,12 @@ namespace PaddleBounceBlockBreak
 
             _level.Update(gameTime);
 
-            if (_level.LevelComplete)
+            if(_level.LevelState == LevelState.LEVEL_FAIL)
+            {
+                _gameState = GameState.GAME_OVER;
+            }
+
+            if (_level.LevelState == LevelState.LEVEL_COMPLETE)
             {
                 LoadNextLevel();
             }
@@ -83,6 +96,11 @@ namespace PaddleBounceBlockBreak
             _level.Draw(gameTime, _spriteBatch);
 
             _score.Draw(_spriteBatch, _totalScore + _level.LevelScore);
+
+            if (_gameState == GameState.GAME_OVER)
+            {
+                _gameOverOverlay.Draw(_spriteBatch);
+            }
 
             _spriteBatch.End();
 
