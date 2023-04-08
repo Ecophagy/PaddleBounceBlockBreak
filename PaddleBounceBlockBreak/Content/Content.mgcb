@@ -37,6 +37,13 @@
 /processorParam:TextureFormat=Color
 /build:block.png
 
+#begin HudFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:HudFont.spritefont
+
 #begin paddle.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -48,11 +55,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:paddle.png
-
-#begin ScoreFont.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:ScoreFont.spritefont
 

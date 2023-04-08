@@ -18,11 +18,13 @@ namespace PaddleBounceBlockBreak
         public static Random Random;
 
         private Level _level;
-        private Score _score;
+        private DynamicHudText _scoreOverlay;
         private int _totalScore;
+        private int _lives;
         private GameState _gameState;
 
         private HudText _gameOverOverlay;
+        private DynamicHudText _livesOverlay;
         
 
         public Game1()
@@ -38,6 +40,7 @@ namespace PaddleBounceBlockBreak
             ScreenHeight = _graphics.PreferredBackBufferHeight;
             Random = new Random();
 
+            _lives = 3; // Start with 3 lives
             _gameState = GameState.GAME_ACTIVE;
 
             base.Initialize();
@@ -47,8 +50,9 @@ namespace PaddleBounceBlockBreak
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _score = new Score(Content.Load<SpriteFont>("ScoreFont"));
-            _gameOverOverlay = new HudText(Content.Load<SpriteFont>("ScoreFont"), "Game Over!", new Vector2(ScreenWidth/2, ScreenHeight/2));
+            _scoreOverlay = new DynamicHudText(Content.Load<SpriteFont>("HudFont"), "Score: ", new Vector2(10, 0));
+            _livesOverlay = new DynamicHudText(Content.Load<SpriteFont>("HudFont"), "Lives: ", new Vector2(10, _scoreOverlay.Size.Y));
+            _gameOverOverlay = new CentredHudText(Content.Load<SpriteFont>("HudFont"), "Game Over!", new Vector2(ScreenWidth/2, ScreenHeight/2));
 
             LoadNextLevel();
         }
@@ -71,16 +75,27 @@ namespace PaddleBounceBlockBreak
                 Exit();
             }
 
-            _level.Update(gameTime);
-
-            if(_level.LevelState == LevelState.LEVEL_FAIL)
+            if (_gameState == GameState.GAME_ACTIVE)
             {
-                _gameState = GameState.GAME_OVER;
-            }
+                _level.Update(gameTime);
 
-            if (_level.LevelState == LevelState.LEVEL_COMPLETE)
-            {
-                LoadNextLevel();
+                if (_level.LevelState == LevelState.LEVEL_FAIL)
+                {
+                    _lives -= 1;
+                    if (_lives == 0)
+                    {
+                        _gameState = GameState.GAME_OVER;
+                    }
+                    else
+                    {
+                        _level.Reset();
+                    }
+                }
+
+                if (_level.LevelState == LevelState.LEVEL_COMPLETE)
+                {
+                    LoadNextLevel();
+                }
             }
 
             base.Update(gameTime);
@@ -95,7 +110,8 @@ namespace PaddleBounceBlockBreak
 
             _level.Draw(gameTime, _spriteBatch);
 
-            _score.Draw(_spriteBatch, _totalScore + _level.LevelScore);
+            _scoreOverlay.Draw(_spriteBatch, (_totalScore + _level.LevelScore).ToString());
+            _livesOverlay.Draw(_spriteBatch, _lives.ToString());
 
             if (_gameState == GameState.GAME_OVER)
             {

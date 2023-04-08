@@ -91,10 +91,9 @@ namespace PaddleBounceBlockBreak
                         LevelScore += block._pointValue;
                     }
                 }
-                var gameOver = _ball.HandleWallCollision(Game1.ScreenWidth, Game1.ScreenHeight);
-                if (gameOver)
+                var levelFail = _ball.HandleWallCollision(Game1.ScreenWidth, Game1.ScreenHeight);
+                if (levelFail)
                 {
-                    //_ball.Restart();
                     OnLevelFail();
                 }
 
@@ -124,6 +123,12 @@ namespace PaddleBounceBlockBreak
                     i--;
                 }
             }
+        }
+
+        public void Reset()
+        {
+            _ball.Restart();
+            LevelState = LevelState.LEVEL_ACTIVE;
         }
 
         private void OnLevelComplete()
