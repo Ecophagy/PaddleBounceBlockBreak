@@ -1,11 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace PaddleBounceBlockBreak.Sprites
 {
@@ -16,7 +13,6 @@ namespace PaddleBounceBlockBreak.Sprites
         private float? _startSpeed;
         private bool _isPlaying;
 
-        public Score Score; // TODO: Not used here?
         public int SpeedIncrementInterval = 10; // How often speed will increase
 
         public Ball(Texture2D texture) : base(texture)
@@ -24,7 +20,7 @@ namespace PaddleBounceBlockBreak.Sprites
             Speed = 3f;
         }
 
-        public void Update(GameTime gameTime, List<Block> blocks, Sprite paddle)
+        public override void Update(GameTime gameTime)
         {
             // Set initial values
             if (_startPosition == null)
@@ -55,39 +51,17 @@ namespace PaddleBounceBlockBreak.Sprites
                     _timer = 0;
                 }
 
-                _ = HandleSpriteCollision(paddle);
-
-                foreach (var block in blocks)
-                {
-                    if (HandleSpriteCollision(block))
-                    {
-                        // We hit a block! Tell it about it
-                        block.BlockHit();
-                    }
-                }
-
-                // Update Velocity from collision with walls
-                if (Position.X <= 0 || Position.X + _texture.Width >= Game1.ScreenWidth)
-                {
-                    Velocity.X = -Velocity.X;
-                }
-                if (Position.Y <= 0)
-                {
-                    Velocity.Y = -Velocity.Y;
-
-                }
-                if (Position.Y + _texture.Height >= Game1.ScreenHeight)
-                {
-                    // GAME OVER
-                    Restart();
-                }
-
                 Position += Velocity * Speed;
             }
         }
 
-        // Return if a collision occurred with parameter sprite
-        private bool HandleSpriteCollision(Sprite sprite)
+        
+        /// <summary>
+        /// Handle collision with collidable sprites
+        /// </summary>
+        /// <param name="sprite">sprite to check for collision with</param>
+        /// <returns>True if there was a collision with sprite</returns>
+        public bool HandleSpriteCollision(Sprite sprite)
         {
             if (sprite == this)
             {
@@ -119,6 +93,31 @@ namespace PaddleBounceBlockBreak.Sprites
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Handles Ball collision with screen edges
+        /// </summary>
+        /// <returns>If "game over" occurred</returns>
+        public bool HandleWallCollision(int ScreenWidth, int ScreenHeight)
+        {
+            var gameOver = false;
+            // Update Velocity from collision with walls
+            if (Position.X <= 0 || Position.X + _texture.Width >= ScreenWidth)
+            {
+                Velocity.X = -Velocity.X;
+            }
+            if (Position.Y <= 0)
+            {
+                Velocity.Y = -Velocity.Y;
+
+            }
+            if (Position.Y + _texture.Height >= ScreenHeight)
+            {
+                // GAME OVER
+                gameOver = true;
+            }
+            return gameOver;
         }
 
         public void Restart()

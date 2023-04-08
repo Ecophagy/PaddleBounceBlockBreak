@@ -21,7 +21,7 @@ namespace PaddleBounceBlockBreak.Sprites
             // Do nothing, for now
         }
 
-        public void BlockHit()
+        public void OnHit()
         {
             this.IsRemoved = true;
         }

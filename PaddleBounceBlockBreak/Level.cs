@@ -7,6 +7,7 @@ using PaddleBounceBlockBreak.Sprites;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 
 namespace PaddleBounceBlockBreak
 {
@@ -74,13 +75,29 @@ namespace PaddleBounceBlockBreak
             if (!LevelComplete)
             {
                 _paddle.Update(gameTime);
-                _ball.Update(gameTime, _blocks, _paddle);
+                _ball.Update(gameTime);
+
+                // Handle Ball collisions with other objects
+                _ = _ball.HandleSpriteCollision(_paddle);
+                foreach (var block in _blocks)
+                {
+                    if(_ball.HandleSpriteCollision(block))
+                    {
+                        block.OnHit();
+                        // Update score
+                        LevelScore += block._pointValue;
+                    }
+                }
+                var gameOver = _ball.HandleWallCollision(Game1.ScreenWidth, Game1.ScreenHeight);
+                if (gameOver)
+                {
+                    _ball.Restart();
+                }
+
                 foreach (var block in _blocks)
                 {
                     block.Update(gameTime);
                 }
-
-                UpdateScore();
 
                 PostUpdate();
 
@@ -91,17 +108,6 @@ namespace PaddleBounceBlockBreak
             }
 
             PostUpdate();
-        }
-
-        private void UpdateScore()
-        {
-            foreach (var block in _blocks)
-            {
-                if (block.IsRemoved)
-                {
-                    LevelScore += block._pointValue;
-                }
-            }
         }
 
         private void PostUpdate()
