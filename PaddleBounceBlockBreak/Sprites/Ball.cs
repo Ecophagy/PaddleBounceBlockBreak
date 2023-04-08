@@ -13,7 +13,7 @@ namespace PaddleBounceBlockBreak.Sprites
         private float? _startSpeed;
         private bool _isPlaying;
 
-        public int SpeedIncrementInterval = 10; // How often speed will increase
+        public int SpeedIncrementInterval = 20; // How often speed will increase in seconds
 
         public Ball(Texture2D texture) : base(texture)
         {
@@ -31,7 +31,7 @@ namespace PaddleBounceBlockBreak.Sprites
                 Restart();
             }
 
-            if(Keyboard.GetState().IsKeyDown(Keys.Space))
+            if(Keyboard.GetState().IsKeyDown(Keys.Space)) // TODO: move this logic into Level
             {
                 _isPlaying = true;
             }
@@ -47,7 +47,7 @@ namespace PaddleBounceBlockBreak.Sprites
                 _timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
                 if (_timer > SpeedIncrementInterval)
                 {
-                    Speed++;
+                    Speed += 0.5f;
                     _timer = 0;
                 }
 
