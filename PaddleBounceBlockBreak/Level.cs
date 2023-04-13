@@ -56,11 +56,20 @@ namespace PaddleBounceBlockBreak
         private void LoadBlocks()
         {
             var blockTexture = _content.Load<Texture2D>("block");
+            var damagedBlockTexture = _content.Load<Texture2D>("damaged_block");
+
+            // Dictionary of block textures that change as they take hits
+            var blockTextures = new Dictionary<int, Texture2D>
+            {
+                { 1, damagedBlockTexture },
+                { 2, blockTexture },
+            };
+
             _blocks = new List<Block>();
             // Add 10 block in a random pattern
             foreach (var _ in Enumerable.Range(0, 10))
             {
-                var block = new Block(blockTexture, 10);
+                var block = new Block(blockTextures, 10, 2);
 
                 // Randomise block position
                 var blockX = _random.Next(0, Game1.ScreenWidth - block.Rectangle.Width);
