@@ -21,17 +21,24 @@ namespace PaddleBounceBlockBreak
         private Ball _ball;
         private Paddle _paddle;
         private List<Block> _blocks;
+        
+        private readonly Entity _ballEntity = new Entity("ball"); 
+        private readonly Entity _paddleEntity = new Entity("paddle");
 
         // Component lists
         private Dictionary<Guid, RenderComponent> _renderComponents = new();
         private Dictionary<Guid, PositionComponent> _positionComponents = new();
         private Dictionary<Guid, MotionComponent> _motionComponents = new();
         private Dictionary<Guid, UserControlComponent> _userControlComponents = new();
+        private Dictionary<Guid, CollisionComponent> _collisionComponents = new();
+        private Dictionary<Guid, HealthComponent> _healthComponents = new();
         
         // Systems
         private readonly RenderSystem _renderSystem = new();
         private readonly UserInputSystem _userInputSystem = new();
         private readonly PhysicsSystem _physicsSystem = new();
+        private readonly EntityCollisionSystem _entityCollisionSystem = new();
+        private readonly WallCollisionSystem _wallCollisionSystem = new();
 
         // Level State
         private Random _random = new Random();
@@ -46,23 +53,23 @@ namespace PaddleBounceBlockBreak
             _content = new ContentManager(serviceProvider, "Content");
            
             // Ball
-            var ballEntity = new Entity("ball");
             var ballTexture = _content.Load<Texture2D>("ball");
-            _renderComponents.Add(ballEntity.EntityId, new RenderComponent(ballTexture));
-            _positionComponents.Add(ballEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (ballTexture.Width / 2), (Game1.ScreenHeight / 2) - (ballTexture.Height / 2))));
-            _motionComponents.Add(ballEntity.EntityId, new MotionComponent(3f, new Vector2(3,3))); // TODO: Set initial velocity to 0
+            _renderComponents.Add(_ballEntity.EntityId, new RenderComponent(ballTexture));
+            _positionComponents.Add(_ballEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (ballTexture.Width / 2), (Game1.ScreenHeight / 2) - (ballTexture.Height / 2))));
+            _motionComponents.Add(_ballEntity.EntityId, new MotionComponent(3f, new Vector2(-3,-3))); // TODO: Set initial velocity to 0
+            _collisionComponents.Add(_ballEntity.EntityId, new CollisionComponent(ballTexture.Height, ballTexture.Width));
             
             // Paddle
-            var paddleEntity = new Entity("paddle");
             var paddleTexture = _content.Load<Texture2D>("paddle");
-            _renderComponents.Add(paddleEntity.EntityId, new RenderComponent(paddleTexture));
-            _positionComponents.Add(paddleEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (paddleTexture.Width / 2), Game1.ScreenHeight - 40)));
-            _motionComponents.Add(paddleEntity.EntityId, new MotionComponent(5f, new Vector2()));
-            _userControlComponents.Add(paddleEntity.EntityId, new UserControlComponent(new Input()
+            _renderComponents.Add(_paddleEntity.EntityId, new RenderComponent(paddleTexture));
+            _positionComponents.Add(_paddleEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (paddleTexture.Width / 2), Game1.ScreenHeight - 40)));
+            _motionComponents.Add(_paddleEntity.EntityId, new MotionComponent(5f, new Vector2()));
+            _userControlComponents.Add(_paddleEntity.EntityId, new UserControlComponent(new Input()
             {
                 Left = Keys.Left,
                 Right = Keys.Right
             }));
+            _collisionComponents.Add(_paddleEntity.EntityId, new CollisionComponent(paddleTexture.Height, paddleTexture.Width));
             
             // Blocks
             var blockTexture = _content.Load<Texture2D>("block");
@@ -75,29 +82,11 @@ namespace PaddleBounceBlockBreak
                 var ylimit = (Game1.ScreenHeight / 2) - blockTexture.Height; // Limit Y to top half of screen
                 var blockY = _random.Next(0, ylimit);
                 _positionComponents.Add(blockEntity.EntityId, new PositionComponent(new Vector2(blockX, blockY)));
+                _collisionComponents.Add(blockEntity.EntityId, new CollisionComponent(blockTexture.Height, blockTexture.Width));
+                _healthComponents.Add(blockEntity.EntityId, new HealthComponent(2));
             }
             
             LevelState = LevelState.LEVEL_ACTIVE;
-
-/*
-            _paddle = new Paddle(paddleTexture)
-            {
-                Position = new Vector2((Game1.ScreenWidth / 2) - (paddleTexture.Width / 2), Game1.ScreenHeight - 40),
-                Input = new Input()
-                {
-                    Left = Keys.Left,
-                    Right = Keys.Right
-                }
-            };
-            _ball = new Ball(ballTexture)
-            {
-                Position = new Vector2((Game1.ScreenWidth / 2) - (ballTexture.Width / 2), (Game1.ScreenHeight / 2) - (ballTexture.Height / 2))
-            };
-
-
-
-            LoadBlocks();*/
-
         }
 
         private void LoadBlocks()
@@ -137,11 +126,30 @@ namespace PaddleBounceBlockBreak
                 {
                     _userInputSystem.Update(component.Value, _motionComponents[component.Key]);
                 }
-
+                
+                // Handles collision between ball and other objects
+                foreach (var component in _collisionComponents.Where(component => component.Key != _ballEntity.EntityId))
+                {
+                    _entityCollisionSystem.Update(_collisionComponents[_ballEntity.EntityId],
+                        _positionComponents[_ballEntity.EntityId],
+                        _motionComponents[_ballEntity.EntityId],
+                        component.Value,
+                        _positionComponents[component.Key]);
+                }
+                
+                // Handle ball collision with walls
+                _wallCollisionSystem.Update(_collisionComponents[_ballEntity.EntityId], 
+                    _positionComponents[_ballEntity.EntityId],
+                    _motionComponents[_ballEntity.EntityId], 
+                    Game1.ScreenWidth,
+                    Game1.ScreenHeight);
+                
                 foreach (var component in _motionComponents)
                 {
                     _physicsSystem.Update(component.Value, _positionComponents[component.Key]);
                 }
+
+
             }
 
             /*
