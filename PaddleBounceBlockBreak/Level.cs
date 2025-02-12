@@ -31,6 +31,7 @@ namespace PaddleBounceBlockBreak
         // Systems
         private readonly RenderSystem _renderSystem = new();
         private readonly UserInputSystem _userInputSystem = new();
+        private readonly PhysicsSystem _physicsSystem = new();
 
         // Level State
         private Random _random = new Random();
@@ -49,13 +50,14 @@ namespace PaddleBounceBlockBreak
             var ballTexture = _content.Load<Texture2D>("ball");
             _renderComponents.Add(ballEntity.EntityId, new RenderComponent(ballTexture));
             _positionComponents.Add(ballEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (ballTexture.Width / 2), (Game1.ScreenHeight / 2) - (ballTexture.Height / 2))));
+            _motionComponents.Add(ballEntity.EntityId, new MotionComponent(3f, new Vector2(3,3))); // TODO: Set initial velocity to 0
             
             // Paddle
             var paddleEntity = new Entity("paddle");
             var paddleTexture = _content.Load<Texture2D>("paddle");
             _renderComponents.Add(paddleEntity.EntityId, new RenderComponent(paddleTexture));
             _positionComponents.Add(paddleEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (paddleTexture.Width / 2), Game1.ScreenHeight - 40)));
-            _motionComponents.Add(paddleEntity.EntityId, new MotionComponent(5f));
+            _motionComponents.Add(paddleEntity.EntityId, new MotionComponent(5f, new Vector2()));
             _userControlComponents.Add(paddleEntity.EntityId, new UserControlComponent(new Input()
             {
                 Left = Keys.Left,
@@ -134,7 +136,11 @@ namespace PaddleBounceBlockBreak
                 foreach (var component in _userControlComponents)
                 {
                     _userInputSystem.Update(component.Value, _motionComponents[component.Key]);
-                    Console.WriteLine(_motionComponents[component.Key].Velocity);
+                }
+
+                foreach (var component in _motionComponents)
+                {
+                    _physicsSystem.Update(component.Value, _positionComponents[component.Key]);
                 }
             }
 

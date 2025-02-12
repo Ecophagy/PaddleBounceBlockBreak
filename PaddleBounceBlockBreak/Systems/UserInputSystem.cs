@@ -12,9 +12,14 @@ public class UserInputSystem
             motion.Velocity = motion.Velocity with { X = -motion.Speed };
         }
 
-        if (Keyboard.GetState().IsKeyDown(userControl.Input.Right))
+        else if (Keyboard.GetState().IsKeyDown(userControl.Input.Right))
         {
             motion.Velocity = motion.Velocity with { X = motion.Speed };
+        }
+
+        else
+        {
+            motion.Velocity = motion.Velocity with { X = 0 };
         }
     }
 }
