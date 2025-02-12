@@ -9,6 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
+using PaddleBounceBlockBreak.Components;
+using PaddleBounceBlockBreak.Entities;
+using PaddleBounceBlockBreak.Systems;
 
 namespace PaddleBounceBlockBreak
 {
@@ -18,6 +21,13 @@ namespace PaddleBounceBlockBreak
         private Ball _ball;
         private Paddle _paddle;
         private List<Block> _blocks;
+
+        // Component lists
+        private Dictionary<Guid, RenderComponent> _renderComponents = new();
+        private Dictionary<Guid, PositionComponent> _positionComponents = new();
+        
+        // Systems
+        private readonly RenderSystem _renderSystem = new();
 
         // Level State
         private Random _random = new Random();
@@ -30,9 +40,35 @@ namespace PaddleBounceBlockBreak
         public Level(IServiceProvider serviceProvider) // TODO: Can set difficulty/number of blocks here
         {
             _content = new ContentManager(serviceProvider, "Content");
-            var paddleTexture = _content.Load<Texture2D>("paddle");
+           
+            // Ball
+            var ballEntity = new Entity("ball");
             var ballTexture = _content.Load<Texture2D>("ball");
+            _renderComponents.Add(ballEntity.EntityId, new RenderComponent(ballTexture));
+            _positionComponents.Add(ballEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (ballTexture.Width / 2), (Game1.ScreenHeight / 2) - (ballTexture.Height / 2))));
+            
+            // Paddle
+            var paddleEntity = new Entity("paddle");
+            var paddleTexture = _content.Load<Texture2D>("paddle");
+            _renderComponents.Add(paddleEntity.EntityId, new RenderComponent(paddleTexture));
+            _positionComponents.Add(paddleEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (paddleTexture.Width / 2), Game1.ScreenHeight - 40)));
+            
+            // Blocks
+            var blockTexture = _content.Load<Texture2D>("block");
+            foreach (var i in Enumerable.Range(0, 10))
+            {
+                var blockEntity = new Entity($"block_{i}");
+                _renderComponents.Add(blockEntity.EntityId, new RenderComponent(blockTexture));
+                // Randomise block position
+                var blockX = _random.Next(0, Game1.ScreenWidth - blockTexture.Width);
+                var ylimit = (Game1.ScreenHeight / 2) - blockTexture.Height; // Limit Y to top half of screen
+                var blockY = _random.Next(0, ylimit);
+                _positionComponents.Add(blockEntity.EntityId, new PositionComponent(new Vector2(blockX, blockY)));
+            }
+            
+            LevelState = LevelState.LEVEL_ACTIVE;
 
+/*
             _paddle = new Paddle(paddleTexture)
             {
                 Position = new Vector2((Game1.ScreenWidth / 2) - (paddleTexture.Width / 2), Game1.ScreenHeight - 40),
@@ -47,9 +83,9 @@ namespace PaddleBounceBlockBreak
                 Position = new Vector2((Game1.ScreenWidth / 2) - (ballTexture.Width / 2), (Game1.ScreenHeight / 2) - (ballTexture.Height / 2))
             };
 
-            LevelState = LevelState.LEVEL_ACTIVE;
 
-            LoadBlocks();
+
+            LoadBlocks();*/
 
         }
 
@@ -84,6 +120,7 @@ namespace PaddleBounceBlockBreak
 
         public void Update(GameTime gameTime)
         {
+            /*
             if (LevelState == LevelState.LEVEL_ACTIVE)
             {
                 _paddle.Update(gameTime);
@@ -120,6 +157,7 @@ namespace PaddleBounceBlockBreak
             }
 
             PostUpdate();
+            */
         }
 
         private void PostUpdate()
@@ -152,14 +190,18 @@ namespace PaddleBounceBlockBreak
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-
-            _paddle.Draw(spriteBatch);
-            _ball.Draw(spriteBatch);
-
-            foreach (var block in _blocks)
+            foreach (var components in _renderComponents)
             {
-                block.Draw(spriteBatch);
+                _renderSystem.Draw(spriteBatch, components.Value, _positionComponents[components.Key]);
             }
+
+            // _paddle.Draw(spriteBatch);
+            // _ball.Draw(spriteBatch);
+            //
+            // foreach (var block in _blocks)
+            // {
+            //     block.Draw(spriteBatch);
+            // }
         }
 
         /// <summary>
