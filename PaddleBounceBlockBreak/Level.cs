@@ -25,9 +25,12 @@ namespace PaddleBounceBlockBreak
         // Component lists
         private Dictionary<Guid, RenderComponent> _renderComponents = new();
         private Dictionary<Guid, PositionComponent> _positionComponents = new();
+        private Dictionary<Guid, MotionComponent> _motionComponents = new();
+        private Dictionary<Guid, UserControlComponent> _userControlComponents = new();
         
         // Systems
         private readonly RenderSystem _renderSystem = new();
+        private readonly UserInputSystem _userInputSystem = new();
 
         // Level State
         private Random _random = new Random();
@@ -52,6 +55,12 @@ namespace PaddleBounceBlockBreak
             var paddleTexture = _content.Load<Texture2D>("paddle");
             _renderComponents.Add(paddleEntity.EntityId, new RenderComponent(paddleTexture));
             _positionComponents.Add(paddleEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (paddleTexture.Width / 2), Game1.ScreenHeight - 40)));
+            _motionComponents.Add(paddleEntity.EntityId, new MotionComponent(5f));
+            _userControlComponents.Add(paddleEntity.EntityId, new UserControlComponent(new Input()
+            {
+                Left = Keys.Left,
+                Right = Keys.Right
+            }));
             
             // Blocks
             var blockTexture = _content.Load<Texture2D>("block");
@@ -120,6 +129,15 @@ namespace PaddleBounceBlockBreak
 
         public void Update(GameTime gameTime)
         {
+            if (LevelState == LevelState.LEVEL_ACTIVE)
+            {
+                foreach (var component in _userControlComponents)
+                {
+                    _userInputSystem.Update(component.Value, _motionComponents[component.Key]);
+                    Console.WriteLine(_motionComponents[component.Key].Velocity);
+                }
+            }
+
             /*
             if (LevelState == LevelState.LEVEL_ACTIVE)
             {
