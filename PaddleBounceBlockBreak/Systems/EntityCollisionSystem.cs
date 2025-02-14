@@ -14,18 +14,22 @@ public class EntityCollisionSystem
           if (activeMotion.Velocity.X > 0 && IsTouchingLeft(activeMotion.Velocity, activeRect, passiveRect))
           {
                activeMotion.Velocity = activeMotion.Velocity with { X = -activeMotion.Velocity.X };
+               passiveCollision.Impact = true;
           }
           if (activeMotion.Velocity.X < 0 && IsTouchingRight(activeMotion.Velocity, activeRect, passiveRect))
           {
                activeMotion.Velocity = activeMotion.Velocity with { X = -activeMotion.Velocity.X };
+               passiveCollision.Impact = true;
           }
           if (activeMotion.Velocity.Y > 0 && IsTouchingTop(activeMotion.Velocity, activeRect, passiveRect))
           {
                activeMotion.Velocity = activeMotion.Velocity with { Y = -activeMotion.Velocity.Y };
+               passiveCollision.Impact = true;
           }
           if (activeMotion.Velocity.Y < 0 && IsTouchingBottom(activeMotion.Velocity, activeRect, passiveRect))
           {
                activeMotion.Velocity = activeMotion.Velocity with { Y = -activeMotion.Velocity.Y };
+               passiveCollision.Impact = true;
           }
      }
      

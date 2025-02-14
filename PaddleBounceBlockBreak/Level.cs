@@ -39,6 +39,7 @@ namespace PaddleBounceBlockBreak
         private readonly PhysicsSystem _physicsSystem = new();
         private readonly EntityCollisionSystem _entityCollisionSystem = new();
         private readonly WallCollisionSystem _wallCollisionSystem = new();
+        private readonly CollisionDamageSystem _collisionDamageSystem = new();
 
         // Level State
         private Random _random = new Random();
@@ -73,6 +74,14 @@ namespace PaddleBounceBlockBreak
             
             // Blocks
             var blockTexture = _content.Load<Texture2D>("block");
+            var damagedBlockTexture = _content.Load<Texture2D>("damaged_block");
+
+            // Dictionary of block textures that change as they take hits
+            var blockTextures = new Dictionary<int, Texture2D>
+            {
+                { 1, damagedBlockTexture },
+                { 2, blockTexture },
+            };
             foreach (var i in Enumerable.Range(0, 10))
             {
                 var blockEntity = new Entity($"block_{i}");
@@ -83,7 +92,7 @@ namespace PaddleBounceBlockBreak
                 var blockY = _random.Next(0, ylimit);
                 _positionComponents.Add(blockEntity.EntityId, new PositionComponent(new Vector2(blockX, blockY)));
                 _collisionComponents.Add(blockEntity.EntityId, new CollisionComponent(blockTexture.Height, blockTexture.Width));
-                _healthComponents.Add(blockEntity.EntityId, new HealthComponent(2));
+                _healthComponents.Add(blockEntity.EntityId, new HealthComponent(2, blockTextures));
             }
             
             LevelState = LevelState.LEVEL_ACTIVE;
@@ -93,7 +102,6 @@ namespace PaddleBounceBlockBreak
         {
             var blockTexture = _content.Load<Texture2D>("block");
             var damagedBlockTexture = _content.Load<Texture2D>("damaged_block");
-
             // Dictionary of block textures that change as they take hits
             var blockTextures = new Dictionary<int, Texture2D>
             {
@@ -143,13 +151,18 @@ namespace PaddleBounceBlockBreak
                     _motionComponents[_ballEntity.EntityId], 
                     Game1.ScreenWidth,
                     Game1.ScreenHeight);
+
+                foreach (var component in _healthComponents.Where(component => _collisionComponents[component.Key].Impact))
+                {
+                    _collisionDamageSystem.Update(component.Value, _collisionComponents[component.Key], _renderComponents[component.Key]);
+                }
                 
                 foreach (var component in _motionComponents)
                 {
                     _physicsSystem.Update(component.Value, _positionComponents[component.Key]);
                 }
-
-
+                
+                PostUpdate();
             }
 
             /*
@@ -194,12 +207,16 @@ namespace PaddleBounceBlockBreak
 
         private void PostUpdate()
         {
-            for (int i = 0; i < _blocks.Count; i++)
+            foreach (var (key, component) in _healthComponents)
             {
-                if (_blocks[i].IsRemoved)
+                if (component.Health <= 0)
                 {
-                    _blocks.RemoveAt(i);
-                    i--;
+                    // FIXME: Not very scalable, might be worth having a list of component lists
+                    // That we can iterate over to find elements that need removing
+                    _renderComponents.Remove(key);
+                    _positionComponents.Remove(key);
+                    _collisionComponents.Remove(key);
+                    _healthComponents.Remove(key);
                 }
             }
         }
