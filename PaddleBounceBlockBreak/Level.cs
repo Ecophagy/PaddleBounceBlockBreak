@@ -130,19 +130,22 @@ namespace PaddleBounceBlockBreak
         {
             if (LevelState == LevelState.LEVEL_ACTIVE)
             {
-                foreach (var component in _userControlComponents)
+                foreach (var (entityId, component) in _userControlComponents)
                 {
-                    _userInputSystem.Update(component.Value, _motionComponents[component.Key]);
+                    _userInputSystem.Update(component, _motionComponents[entityId]);
                 }
                 
                 // Handles collision between ball and other objects
-                foreach (var component in _collisionComponents.Where(component => component.Key != _ballEntity.EntityId))
+                foreach (var (entityId, component) in _collisionComponents)
                 {
-                    _entityCollisionSystem.Update(_collisionComponents[_ballEntity.EntityId],
-                        _positionComponents[_ballEntity.EntityId],
-                        _motionComponents[_ballEntity.EntityId],
-                        component.Value,
-                        _positionComponents[component.Key]);
+                    if (entityId != _ballEntity.EntityId)
+                    {
+                        _entityCollisionSystem.Update(_collisionComponents[_ballEntity.EntityId],
+                            _positionComponents[_ballEntity.EntityId],
+                            _motionComponents[_ballEntity.EntityId],
+                            component,
+                            _positionComponents[entityId]);
+                    }
                 }
                 
                 // Handle ball collision with walls
@@ -152,14 +155,14 @@ namespace PaddleBounceBlockBreak
                     Game1.ScreenWidth,
                     Game1.ScreenHeight);
 
-                foreach (var component in _healthComponents.Where(component => _collisionComponents[component.Key].Impact))
+                foreach (var (entityId, component) in _healthComponents)
                 {
-                    _collisionDamageSystem.Update(component.Value, _collisionComponents[component.Key], _renderComponents[component.Key]);
+                    _collisionDamageSystem.Update(component, _collisionComponents[entityId], _renderComponents[entityId]);
                 }
                 
-                foreach (var component in _motionComponents)
+                foreach (var (entityId, component) in _motionComponents)
                 {
-                    _physicsSystem.Update(component.Value, _positionComponents[component.Key]);
+                    _physicsSystem.Update(component, _positionComponents[entityId]);
                 }
                 
                 PostUpdate();
@@ -207,16 +210,16 @@ namespace PaddleBounceBlockBreak
 
         private void PostUpdate()
         {
-            foreach (var (key, component) in _healthComponents)
+            foreach (var (entityId, component) in _healthComponents)
             {
                 if (component.Health <= 0)
                 {
                     // FIXME: Not very scalable, might be worth having a list of component lists
                     // That we can iterate over to find elements that need removing
-                    _renderComponents.Remove(key);
-                    _positionComponents.Remove(key);
-                    _collisionComponents.Remove(key);
-                    _healthComponents.Remove(key);
+                    _renderComponents.Remove(entityId);
+                    _positionComponents.Remove(entityId);
+                    _collisionComponents.Remove(entityId);
+                    _healthComponents.Remove(entityId);
                 }
             }
         }
@@ -239,9 +242,9 @@ namespace PaddleBounceBlockBreak
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            foreach (var components in _renderComponents)
+            foreach (var (entityId, component) in _renderComponents)
             {
-                _renderSystem.Draw(spriteBatch, components.Value, _positionComponents[components.Key]);
+                _renderSystem.Draw(spriteBatch, component, _positionComponents[entityId]);
             }
 
             // _paddle.Draw(spriteBatch);
