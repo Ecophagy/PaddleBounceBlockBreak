@@ -29,6 +29,7 @@ namespace PaddleBounceBlockBreak
         private Dictionary<Guid, RenderComponent> _renderComponents = new();
         private Dictionary<Guid, PositionComponent> _positionComponents = new();
         private Dictionary<Guid, MotionComponent> _motionComponents = new();
+        private Dictionary<Guid, AccelerationComponent> _accelerationComponents = new();
         private Dictionary<Guid, UserControlComponent> _userControlComponents = new();
         private Dictionary<Guid, CollisionComponent> _collisionComponents = new();
         private Dictionary<Guid, HealthComponent> _healthComponents = new();
@@ -36,7 +37,8 @@ namespace PaddleBounceBlockBreak
         // Systems
         private readonly RenderSystem _renderSystem = new();
         private readonly UserInputSystem _userInputSystem = new();
-        private readonly PhysicsSystem _physicsSystem = new();
+        private readonly MotionSystem _motionSystem = new();
+        private readonly AccelerationSystem _accelerationSystem = new();
         private readonly EntityCollisionSystem _entityCollisionSystem = new();
         private readonly WallCollisionSystem _wallCollisionSystem = new();
         private readonly CollisionDamageSystem _collisionDamageSystem = new();
@@ -59,6 +61,7 @@ namespace PaddleBounceBlockBreak
             _positionComponents.Add(_ballEntity.EntityId, new PositionComponent(new Vector2((Game1.ScreenWidth / 2) - (ballTexture.Width / 2), (Game1.ScreenHeight / 2) - (ballTexture.Height / 2))));
             _motionComponents.Add(_ballEntity.EntityId, new MotionComponent(3f, new Vector2(-3,-3))); // TODO: Set initial velocity to 0
             _collisionComponents.Add(_ballEntity.EntityId, new CollisionComponent(ballTexture.Height, ballTexture.Width));
+            _accelerationComponents.Add(_ballEntity.EntityId, new AccelerationComponent(new Vector2(1.5f, 1.5f)));
             
             // Paddle
             var paddleTexture = _content.Load<Texture2D>("paddle");
@@ -159,10 +162,15 @@ namespace PaddleBounceBlockBreak
                 {
                     _collisionDamageSystem.Update(component, _collisionComponents[entityId], _renderComponents[entityId]);
                 }
+
+                foreach (var (entityId, component) in _accelerationComponents)
+                {
+                    _accelerationSystem.Update(gameTime, component, _motionComponents[entityId]);
+                }
                 
                 foreach (var (entityId, component) in _motionComponents)
                 {
-                    _physicsSystem.Update(component, _positionComponents[entityId]);
+                    _motionSystem.Update(component, _positionComponents[entityId]);
                 }
                 
                 PostUpdate();

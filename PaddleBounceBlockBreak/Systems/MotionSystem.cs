@@ -2,7 +2,7 @@ using PaddleBounceBlockBreak.Components;
 
 namespace PaddleBounceBlockBreak.Systems;
 
-public class PhysicsSystem
+public class MotionSystem
 {
     public void Update(MotionComponent motion, PositionComponent position)
     {
