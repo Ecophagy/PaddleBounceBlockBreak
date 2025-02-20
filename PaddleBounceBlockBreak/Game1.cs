@@ -4,6 +4,9 @@ using Microsoft.Xna.Framework.Input;
 using PaddleBounceBlockBreak.Constants;
 using PaddleBounceBlockBreak.HUD;
 using System;
+using System.Collections.Generic;
+using PaddleBounceBlockBreak.Components;
+using PaddleBounceBlockBreak.Entities;
 using PaddleBounceBlockBreak.Systems;
 
 namespace PaddleBounceBlockBreak
@@ -27,16 +30,30 @@ namespace PaddleBounceBlockBreak
         private HudText _gameOverOverlay;
         private DynamicHudText _livesOverlay;
         
+        // Entities
+        private readonly Entity GameEntity = new Entity("game");
+        private readonly Entity ScoreEntity = new Entity("score");
+        private readonly Entity LivesEntity = new Entity("lives");
+        private readonly Entity GameOverEntity = new Entity("gameOver");
+        
         // Systems
         private readonly RenderSystem _renderSystem = new();
+        private readonly RenderTextSystem _renderTextSystem = new();
         private readonly UserInputSystem _userInputSystem = new();
         private readonly MotionSystem _motionSystem = new();
         private readonly AccelerationSystem _accelerationSystem = new();
         private readonly EntityCollisionSystem _entityCollisionSystem = new();
         private readonly WallCollisionSystem _wallCollisionSystem = new();
         private readonly CollisionDamageSystem _collisionDamageSystem = new();
+        private readonly ScoreSystem _scoreSystem = new();
+        
+        // Component Lists
+        private Dictionary<Guid, TextRenderComponent> TextRenderComponents = new();
+        private Dictionary<Guid, PositionComponent> GamePositionComponents = new(); // Gross???
+        private Dictionary<Guid, TotalScoreComponent> TotalScoreComponents = new();
         
 
+        
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -64,6 +81,21 @@ namespace PaddleBounceBlockBreak
             _livesOverlay = new DynamicHudText(Content.Load<SpriteFont>("HudFont"), "Lives: ", new Vector2(10, _scoreOverlay.Size.Y));
             _gameOverOverlay = new CentredHudText(Content.Load<SpriteFont>("HudFont"), "Game Over!", new Vector2(ScreenWidth/2, ScreenHeight/2));
 
+            // Score
+            TotalScoreComponents.Add(GameEntity.EntityId, new TotalScoreComponent());
+            
+            var scoreFont = Content.Load<SpriteFont>("HudFont");
+            TextRenderComponents.Add(ScoreEntity.EntityId, new TextRenderComponent(scoreFont, "Score: "));
+            GamePositionComponents.Add(ScoreEntity.EntityId, new PositionComponent(new Vector2(10, 0)));
+            
+            // Lives
+            var livesFont = Content.Load<SpriteFont>("HudFont");
+            TextRenderComponents.Add(LivesEntity.EntityId, new TextRenderComponent(livesFont, "Lives:"));
+            GamePositionComponents.Add(LivesEntity.EntityId, new PositionComponent(new Vector2(10, TextRenderComponents[ScoreEntity.EntityId].Size.Y)));
+            
+            // Game Over
+            // TODO
+            
             LoadNextLevel();
         }
 
@@ -130,6 +162,14 @@ namespace PaddleBounceBlockBreak
                         _motionSystem.Update(component, _level.PositionComponents[entityId]);
                     }
 
+                    foreach (var (entityId, component) in _level.ScoreComponents)
+                    {
+                        _scoreSystem.Update(TotalScoreComponents[GameEntity.EntityId], 
+                            _level.HealthComponents[entityId],
+                            _level.ScoreComponents[entityId],
+                            TextRenderComponents[ScoreEntity.EntityId]);
+                    }
+
                     PostUpdate();
                 }
 
@@ -168,6 +208,7 @@ namespace PaddleBounceBlockBreak
                     _level.PositionComponents.Remove(entityId);
                     _level.CollisionComponents.Remove(entityId);
                     _level.HealthComponents.Remove(entityId);
+                    _level.ScoreComponents.Remove(entityId);
                 }
             }
         }
@@ -183,12 +224,18 @@ namespace PaddleBounceBlockBreak
             {
                 _renderSystem.Draw(_spriteBatch, component, _level.PositionComponents[entityId]);
             }
+            
+            foreach (var (entityId, component) in TextRenderComponents)
+            {
+                _renderTextSystem.Draw(_spriteBatch, component, GamePositionComponents[entityId]);
+            }
 
-            _scoreOverlay.Draw(_spriteBatch, (_totalScore + _level.LevelScore).ToString());
-            _livesOverlay.Draw(_spriteBatch, _lives.ToString());
+            // _scoreOverlay.Draw(_spriteBatch, (_totalScore + _level.LevelScore).ToString());
+            // _livesOverlay.Draw(_spriteBatch, _lives.ToString());
 
             if (_gameState == GameState.GAME_OVER)
             {
+                // TODO
                 _gameOverOverlay.Draw(_spriteBatch);
             }
 
@@ -197,4 +244,5 @@ namespace PaddleBounceBlockBreak
             base.Draw(gameTime);
         }
     }
+    
 }

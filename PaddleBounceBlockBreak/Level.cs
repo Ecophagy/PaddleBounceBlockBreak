@@ -33,6 +33,7 @@ namespace PaddleBounceBlockBreak
         public Dictionary<Guid, UserControlComponent> UserControlComponents = new();
         public Dictionary<Guid, CollisionComponent> CollisionComponents = new();
         public Dictionary<Guid, HealthComponent> HealthComponents = new();
+        public Dictionary<Guid, ScoreComponent> ScoreComponents = new();
 
         // Level State
         private Random _random = new Random();
@@ -87,6 +88,7 @@ namespace PaddleBounceBlockBreak
                 PositionComponents.Add(blockEntity.EntityId, new PositionComponent(new Vector2(blockX, blockY)));
                 CollisionComponents.Add(blockEntity.EntityId, new CollisionComponent(blockTexture.Height, blockTexture.Width));
                 HealthComponents.Add(blockEntity.EntityId, new HealthComponent(2, blockTextures));
+                ScoreComponents.Add(blockEntity.EntityId, new ScoreComponent(10));
             }
             
             LevelState = LevelState.LEVEL_ACTIVE;
